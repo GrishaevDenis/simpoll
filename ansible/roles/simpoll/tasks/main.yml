@@ -1,0 +1,42 @@
+---
+  
+- import_tasks: packages-ubuntu.yml
+  when: ansible_distribution == "Ubuntu" or ansible_distribution == "Debian"
+  become: yes
+
+- import_tasks: packages-centos.yml
+  when: ansible_distribution == "CentOS" or ansible_distribution == "Red Hat Enterprise Linux"
+  become: yes
+
+- import_tasks: ioncube.yml
+  become: yes
+
+- name: generate caddy config file
+  template:
+    src: Caddyfile.j2
+    dest: "/etc/caddy/Caddyfile"
+  notify:
+     - restart caddy
+  become: yes     
+
+- name: "Create {{ document_root }} directory"
+  file:
+    path: "{{ document_root }}"
+    group: www-data
+    owner: www-data
+    state: directory
+  become: yes    
+
+- name: "Create a new database with name {{ db_name }}"
+  mysql_db:
+    name: "{{ db_name }}"
+    state: present
+  become: yes    
+
+- name: "Create mysql user {{ db_user }}"
+  mysql_user:
+    state: present
+    name: "{{ db_user }}"
+    password: "{{ db_password }}"
+    priv: "{{ db_name }}.*:ALL"
+  become: yes    

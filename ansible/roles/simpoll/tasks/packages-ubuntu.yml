@@ -1,0 +1,41 @@
+- name: Install software-properties-common package
+  apt:
+    name: software-properties-common
+    update_cache: yes
+    state: present
+
+- name: Add PPA repository
+  apt_repository:
+    repo: ppa:ondrej/php
+    state: present
+
+- name: Add Caddy apt key.
+  apt_key:
+    url: "https://dl.cloudsmith.io/public/caddy/stable/gpg.key"
+    id: 65760C51EDEA2017CEA2CA15155B6D79CA56EA34
+    state: present
+  register: add_repository_key
+#  ignore_errors: "{{ caddy_apt_ignore_key_error }}"
+
+- name: Add Caddy repository.
+  apt_repository:
+    repo: "deb https://dl.cloudsmith.io/public/caddy/stable/deb/debian any-version main"
+    state: present
+    update_cache: true
+  
+- name: Install packages
+  apt:
+    state: present
+    pkg:
+    - python3-mysqldb
+    - cron
+    - curl   
+    - mariadb-server
+    - caddy
+    - php{{ php_version }}-fpm
+    - php{{ php_version }}-tidy
+    - php{{ php_version }}-mysql
+    - php{{ php_version }}-gd
+    - php{{ php_version }}-mbstring
+
+

@@ -1,0 +1,26 @@
+- name: Check ioncube loader exists
+  stat:
+    path: "/etc/php/{{ php_version }}/mods-available/ioncube_loader.ini"
+  register: p
+
+- name: Create ioncube directore
+  file:
+    path: /usr/local/ioncube
+    state: directory
+  when: p.stat.exists is defined and not p.stat.exists
+
+- name: Download ioncube
+  shell: curl -sL https://downloads.ioncube.com/loader_downloads/ioncube_loaders_lin_x86-64.tar.gz  | tar -xzv
+  args:
+    chdir: /usr/local
+  when: p.stat.exists is defined and not p.stat.exists    
+
+- name: Install ioncube
+  copy:
+    content: "zend_extension = /usr/local/ioncube/ioncube_loader_lin_{{ php_version }}.so"
+    dest: /etc/php/{{ php_version }}/mods-available/ioncube_loader.ini
+    force: no
+  notify:
+     - restart php-fpm
+  when: p.stat.exists is defined and not p.stat.exists
+

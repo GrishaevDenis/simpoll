@@ -1,0 +1,22 @@
+version: '3.8'
+
+services:
+
+  simpoll:
+    image: lisfer/simpoll
+    container_name: simpoll
+    restart: unless-stopped
+    ports:
+      - 80:80
+      - 443:443
+    volumes:
+      - ./www:/var/www/html
+      - simpoll_mysql:/var/lib/mysql
+    environment:
+      DB_NAME: simpoll
+      DB_USER: simpoll
+      DB_PASSWORD: simpoll
+      HOSTNAME: localhost
+
+volumes:
+    simpoll_mysql: {}

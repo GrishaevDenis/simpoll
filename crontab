@@ -1,0 +1,3 @@
+SHELL=/bin/sh
+
+0 0 * * *     root    cd /var/www/html/system/ && php -f cron.php > /dev/null
