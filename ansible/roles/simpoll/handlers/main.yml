@@ -1,6 +1,9 @@
 ---
-- name: restart php-fpm
-  service: name=php{{ php_version}}-fpm state=restarted
+- name: restart php-fpm-ubuntu
+  service: name=php{{ php_version }}-fpm state=restarted
+
+- name: restart php-fpm-centos
+  service: name=php{{ php_version | regex_replace('\.', '') }}-php-fpm state=restarted
 
 - name: restart caddy
   service: name=caddy state=restarted

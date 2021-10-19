@@ -1,5 +1,5 @@
 {{hostname}}
 
 root * {{document_root}}
-php_fastcgi unix//run/php/php{{php_version}}-fpm.sock
+php_fastcgi 127.0.0.1:9000
 file_server

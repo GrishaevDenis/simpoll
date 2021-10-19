@@ -1,15 +1,15 @@
-- name: Install software-properties-common package
+- name: Ubuntu - Install software-properties-common package
   apt:
     name: software-properties-common
     update_cache: yes
     state: present
 
-- name: Add PPA repository
+- name: Ubuntu - Add PPA repository
   apt_repository:
     repo: ppa:ondrej/php
     state: present
 
-- name: Add Caddy apt key.
+- name: Ubuntu - Add Caddy apt key.
   apt_key:
     url: "https://dl.cloudsmith.io/public/caddy/stable/gpg.key"
     id: 65760C51EDEA2017CEA2CA15155B6D79CA56EA34
@@ -17,13 +17,13 @@
   register: add_repository_key
 #  ignore_errors: "{{ caddy_apt_ignore_key_error }}"
 
-- name: Add Caddy repository.
+- name: Ubuntu - Add Caddy repository.
   apt_repository:
     repo: "deb https://dl.cloudsmith.io/public/caddy/stable/deb/debian any-version main"
     state: present
     update_cache: true
   
-- name: Install packages
+- name: Ubuntu - Install packages
   apt:
     state: present
     pkg:
@@ -38,4 +38,19 @@
     - php{{ php_version }}-gd
     - php{{ php_version }}-mbstring
 
+- name: Ubuntu - Make sure a service unit is running
+  systemd:
+    state: started
+    name: "{{ item }}"
+  with_items:
+     - mariadb
+     - cron
+     - php{{ php_version }}-fpm
+     - caddy
 
+- name: Ubuntu - generate php-fpm config file
+  template:
+    src: fpm-www.conf.j2
+    dest: /etc/php/{{ php_version }}/fpm/pool.d/www.conf
+  notify:
+     - restart php-fpm-ubuntu  

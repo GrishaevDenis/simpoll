@@ -1,0 +1,50 @@
+- name: Centos - Installing Remi Repository
+  yum:
+    name: https://rpms.remirepo.net/enterprise/remi-release-7.rpm
+    state: present
+
+- name: Centos - Install yum copr
+  yum:
+    name: yum-plugin-copr
+    state: latest
+
+- name: Centos - Enable caddy repo
+  command: "yum copr enable @caddy/caddy -y"
+
+- name: Centos - Install a list of packages with a list variable
+  yum:
+    name: "{{ packages }}"
+  vars:
+    packages:
+    - curl
+    - caddy
+    - mariadb-server
+    - python-PyMySQL
+    - php{{ php_version | regex_replace('\.', '') }}-php
+    - php{{ php_version | regex_replace('\.', '') }}-php-common
+    - php{{ php_version | regex_replace('\.', '') }}-php-fpm
+    - php{{ php_version | regex_replace('\.', '') }}-php-cli
+    - php{{ php_version | regex_replace('\.', '') }}-php-mbstring
+    - php{{ php_version | regex_replace('\.', '') }}-php-tidy
+    - php{{ php_version | regex_replace('\.', '') }}-php-gd
+    - php{{ php_version | regex_replace('\.', '') }}-php-mysqlnd
+    - php{{ php_version | regex_replace('\.', '') }}-php-mysqli
+    - php{{ php_version | regex_replace('\.', '') }}-php-json
+    state: latest
+
+- name: Centos - Make sure a service unit is running
+  systemd:
+    state: started
+    name: "{{ item }}"
+  with_items:
+     - mariadb
+     - crond
+     - php{{ php_version | regex_replace('\.', '') }}-php-fpm
+     - caddy
+
+- name: Centos - generate php-fpm config file
+  template:
+    src: fpm-www.conf.j2
+    dest: /opt/remi/php{{ php_version | regex_replace('\.', '') }}/root/etc/php-fpm.d/www.conf
+  notify:
+     - restart php-fpm-centos

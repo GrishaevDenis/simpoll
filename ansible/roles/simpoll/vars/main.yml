@@ -1,6 +1,7 @@
 ---
   hostname: localhost
   document_root: /var/www/html/
+  user: www-data
   php_version: 5.6
   db_name: simpoll
   db_user: simpoll
